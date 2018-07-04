@@ -1,6 +1,6 @@
-# matcho [![CircleCI](https://circleci.com/gh/HealthSamurai/matcho.svg?style=svg)](https://circleci.com/gh/HealthSamurai/matcho) [![Join gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/healthsamurai/matcho)
+# matcho [![CircleCI](https://circleci.com/gh/HealthSamurai/matcho.svg?style=shield)](https://circleci.com/gh/HealthSamurai/matcho) [![Join gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/healthsamurai/matcho)
 
-Simpliest pattern matching you've ever seen
+Add ability 
 
 ## Installation
 
