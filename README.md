@@ -1,7 +1,8 @@
 # matcho
 
 [![CircleCI](https://circleci.com/gh/HealthSamurai/matcho.svg?style=svg)](https://circleci.com/gh/HealthSamurai/matcho)
-[![Clojars Project](https://img.shields.io/clojars/v/matcho.svg)](https://clojars.org/matcho)
+
+[![Clojars Project](https://img.shields.io/clojars/v/healthsamurai/matcho.svg)](https://clojars.org/healthsamurai/matcho)
 
 One file library for data driven tests
 
