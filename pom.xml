@@ -5,13 +5,6 @@
   <artifactId>matcho</artifactId>
   <version>0.1.4</version>
   <name>matcho</name>
-  <dependencies>
-    <dependency>
-      <groupId>org.clojure</groupId>
-      <artifactId>clojure</artifactId>
-      <version>1.9.0</version>
-    </dependency>
-  </dependencies>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <resources>
