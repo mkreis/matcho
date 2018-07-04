@@ -1,6 +1,6 @@
 # matcho
 
-[![Build Status](https://travis-ci.org/niquola/matcho.svg)](https://travis-ci.org/niquola/matcho)
+[![CircleCI](https://circleci.com/gh/HealthSamurai/matcho.svg?style=svg)](https://circleci.com/gh/HealthSamurai/matcho)
 [![Clojars Project](https://img.shields.io/clojars/v/matcho.svg)](https://clojars.org/matcho)
 
 One file library for data driven tests
