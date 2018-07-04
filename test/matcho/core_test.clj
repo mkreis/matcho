@@ -59,7 +59,7 @@
 
     (match (match*  {:a [1 -2 3]} {:a ::pos-coll})
            [{:path [:a]
-             :expected "confirms to spec :matcho.core-test/pos-coll"
+             :expected "conforms to spec: :matcho.core-test/pos-coll"
              :but map?}])
     
     (match (match* {:a 2} {:a 1})
@@ -76,7 +76,7 @@
 
     (match (match* {:a {:b "baaa"}}
                    {:a {:b #"^a"}} )
-           [{:path [:a :b], :expected "Match regexp: ^a", :but "baaa"}])
+           [{:path [:a :b], :expected "match regexp: ^a", :but "baaa"}])
 
     (match (match* {:a [1 {:c 3}]} {:a [1 {:c 4}]})
            [{:path [:a 1 :c], :expected 4, :but 3}])))

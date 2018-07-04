@@ -3,33 +3,29 @@
    [clojure.spec.alpha :as s]
    [clojure.test :refer :all]))
 
-(defn simple-value? [x]
-  (not (or (map? x) (vector? x) (set? x))))
-
-(defn match-compare [p s path]
+(defn smart-explain-data [p x]
   (cond
     (instance? clojure.spec.alpha.Specize p)
-    (when-not (s/valid? p s)
-      {:path path :expected (str "confirms to spec " p) :but (s/explain-data p s)})
+    (when-not (s/valid? p x)
+      {:expected (str "conforms to spec: " p) :but (s/explain-data p x)})
 
-    (and (string? s) (= java.util.regex.Pattern (type p)))
-    (when-not (re-find p s)
-      {:path path :expected (str "Match regexp: " p) :but s})
+    (and (string? x) (instance? java.util.regex.Pattern p))
+    (when-not (re-find p x)
+      {:expected (str "match regexp: " p) :but x})
 
     (fn? p)
-    (when-not (p s)
-      {:path path :expected (pr-str p) :but s})
+    (when-not (p x)
+      {:expected (pr-str p) :but x})
 
     (and (keyword? p) (s/get-spec p))
     (let [sp (s/get-spec p)]
-      (when-not (s/valid? p s)
-        {:path path :expected (str "confirms to spec " p) :but (s/explain-data p s)}))
+      (when-not (s/valid? p x)
+        {:expected (str "conforms to spec: " p) :but (s/explain-data p x)}))
 
+    :else (when-not (= p x)
+            {:expected p :but x})))
 
-        :else (when-not (= p s)
-                {:path path :expected p :but s})))
-
-(defn match-recur [errors path example pattern]
+(defn- match-recur [errors path example pattern]
   (cond
     (and (map? example)
          (map? pattern))
@@ -48,14 +44,19 @@
             errors
             (map (fn [x i] [i x]) pattern (range)))
 
-    :else (if-let [err (match-compare pattern example path)]
-            (conj errors err)
-            errors)))
+    :else (let [err (smart-explain-data pattern example)]
+            (if err
+              (conj errors (assoc err :path path))
+              errors))))
 
-(defn match* [example & patterns]
+(defn match*
+  "Match against each pattern"
+  [example & patterns]
   (reduce (fn [acc pattern] (match-recur acc [] example pattern)) [] patterns))
 
-(defmacro match [example & pattern]
+(defmacro match
+  "Match against each pattern and assert with is"
+  [example & pattern]
   `(let [example# ~example
          patterns# [~@pattern]
          errors# (apply match* example# patterns#)]
@@ -63,7 +64,8 @@
        (is false (pr-str errors# example# patterns#))
        (is true))))
 
-(defmacro to-spec [pattern]
+(defmacro ^{:private true} to-spec
+  [pattern]
   (cond
     (symbol? pattern) pattern
     (instance? clojure.lang.Cons pattern) pattern
@@ -90,11 +92,15 @@
 
     :else `(conj #{} ~pattern)))
 
-(defmacro matcho* [example pattern]
+(defmacro matcho*
+  "Match against one pattern"
+  [example pattern]
   `(let [sp# (to-spec ~pattern)]
      (::s/problems (s/explain-data sp# ~example))))
 
-(defmacro matcho [example pattern]
+(defmacro matcho
+  "Match against one pattern and assert with is"
+  [example pattern]
   `(let [sp# (to-spec ~pattern)
          res# (s/valid? sp#  ~example)
          es# (s/explain-str sp# ~example)]
@@ -102,12 +108,11 @@
 
 (comment
 
-  (match-compare 1 2 [:path])
-  (match-compare 1 ::key [:path])
-  (match-compare ::key 1 [:path])
-  (match-compare neg? 1 [:path])
+  (match* [1 3] [1 2])
 
-  (match 1 [])
+  (smart-explain-data pos? -1)
+
+  (matcho* -1 pos?)
 
   (matcho* [1 -2 3] [neg? neg? neg?])
   (to-spec [neg? neg? neg?])
