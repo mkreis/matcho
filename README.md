@@ -1,8 +1,15 @@
-# matcho
+# matcho [![CircleCI](https://circleci.com/gh/HealthSamurai/matcho.svg?style=svg)](https://circleci.com/gh/HealthSamurai/matcho) [![Join gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/healthsamurai/matcho)
 
-[![CircleCI](https://circleci.com/gh/HealthSamurai/matcho.svg?style=svg)](https://circleci.com/gh/HealthSamurai/matcho)
+# Installation
 
-[![Clojars Project](https://img.shields.io/clojars/v/healthsamurai/matcho.svg)](https://clojars.org/healthsamurai/matcho)
+Add following project dependency:
+
+```clj
+{healthsamurai/matcho {:mvn/version "RELEASE"}}
+```
+
+[![Clojars Project](http://clojars.org/healthsamurai/matcho/latest-version.svg)](http://clojars.org/healthsamurai/matcho)
+
 
 One file library for data driven tests
 
