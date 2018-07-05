@@ -64,7 +64,7 @@
        (is false (pr-str errors# example# patterns#))
        (is true))))
 
-(defmacro ^{:private true} to-spec
+(defmacro to-spec
   [pattern]
   (cond
     (symbol? pattern) pattern
