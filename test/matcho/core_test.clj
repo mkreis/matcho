@@ -1,35 +1,52 @@
 (ns matcho.core-test
   (:require [clojure.test :refer :all]
             [clojure.spec.alpha :as s]
-            [matcho.core :refer :all]))
+            [matcho.core :refer :all :as m]))
 
 (defn count-4? [xs]
   (= 2 (count xs)))
 
 (s/def ::pos-coll (s/coll-of pos?))
 
+(deftest readme-test
+  (is (m/valid? pos? 1))
+  (m/assert 1 1)
+  (m/assert {:status #(< % 300)
+             :body   #(not (empty? %))}
+            {:status 200
+             :body   "hello"})
+  (m/assert ::pos-coll [1 2 3])
+  (m/assert [{:expected #"conforms.*pos-coll"}]
+            (m/explain-data ::pos-coll [1 -1 2])))
+
+(deftest spec-like-interface-test
+  (is (m/valid? [1 2] [1 2 3]))
+  (is (m/explain-data #(= 3 (count %)) [1 2]))
+  (is (nil? (m/explain-data [1 2] [1 2 3])))
+  (m/assert [1 2] [1 2 3]))
+
 (deftest matcho-test
   (testing "Matches"
     (match 1 1)
     (match {:a 1 :b 2} {:a 1})
     (match [1] [1])
-    (match  {:a 1 :b 2} {:a 1})
-    (match  {:a 1 :b 2} {:a odd?})
+    (match {:a 1 :b 2} {:a 1})
+    (match {:a 1 :b 2} {:a odd?})
     (match {:a 2} {:a pos?})
-    (match  {:a [1 2 3]} {:a #(= 3 (count %))})
+    (match {:a [1 2 3]} {:a #(= 3 (count %))})
 
     (match [1 2 3] [1 2])
 
     (match {:a {:b [{:c 1 :x 5} {:c 2 :x 6}]}}
-            {:a {:b [{:c 1} {:c 2}]}})
+           {:a {:b [{:c 1} {:c 2}]}})
 
-    (match  {:a [1 2 3]} {:a ::pos-coll})
+    (match {:a [1 2 3]} {:a ::pos-coll})
 
     (match '(1 2 3) [1 2 3])
 
 
     #_(match {:a {:b [{:c 1 :x 5} {:c 2 :x 6}]}}
-           {:a {:b #{{:c odd?}}}})
+             {:a {:b #{{:c odd?}}}})
 
     )
 
@@ -42,7 +59,7 @@
              #(= 2 (count %))
              [{:a odd?} {:b even?}])
            [{:path [0 :a]} {:path [1 :b]}]))
-    
+
   (testing "spec integration"
 
     (match [1 2 3] (s/coll-of number?))
@@ -58,10 +75,10 @@
            [{:path [:a] :expected #"count" :but [1 2 3]}])
 
     (match (match*  {:a [1 -2 3]} {:a ::pos-coll})
-           [{:path [:a]
+           [{:path     [:a]
              :expected "conforms to spec: :matcho.core-test/pos-coll"
-             :but map?}])
-    
+             :but      map?}])
+
     (match (match* {:a 2} {:a 1})
            [{:path [:a], :expected 1, :but 2}])
 
@@ -83,15 +100,16 @@
 
 
 
+
 (deftest test-matcho
   (matcho {:a 1} {:a odd?})
 
   (matcho [1 2 3] (s/coll-of int?))
 
   (matcho {:status 200
-            :body "hello"}
-           {:status #(< % 300)
-            :body #(not (empty? %))})
+           :body  "hello"}
+          {:status #(< % 300)
+           :body  #(not (empty? %))})
   (matcho
    (matcho* {:status 200
              :body "hello"}
