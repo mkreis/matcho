@@ -67,8 +67,9 @@ Understand and pick out needed parts:
   (m/assert [{:expected #"conforms.*pos-coll"}]
             (m/explain-data ::pos-coll [1 -1 2])))
 
-;;;;
+```
 
+```clj
 (testing "Matches"
   (match 1 1)
   (match [1] [1])
