@@ -53,17 +53,29 @@ Understand and pick out needed parts:
 
 ```clj
 (ns hello-world.core
-  (:require [matcho.core :refer [match match* matcho matcho*]]))
+  (:require [clojure.test :refer :all]
+            [matcho.core :as :m]))
   
-(match* 1 )
+(deftest readme-test
+  (is (m/valid? pos? 1))
+  (m/assert 1 1)
+  (m/assert {:status #(< % 300)
+             :body   #(not (empty? %))}
+            {:status 200
+             :body   "hello"})
+  (m/assert ::pos-coll [1 2 3])
+  (m/assert [{:expected #"conforms.*pos-coll"}]
+            (m/explain-data ::pos-coll [1 -1 2])))
+
+;;;;
 
 (testing "Matches"
   (match 1 1)
   (match [1] [1])
-  (match  {:a 1 :b 2} {:a 1})
-  (match  {:a 1 :b 2} {:a odd?})
+  (match {:a 1 :b 2} {:a 1})
+  (match {:a 1 :b 2} {:a odd?})
   (match {:a 2} {:a pos?})
-  (match  {:a [1 2 3]} {:a #(= 3 (count %))})
+  (match {:a [1 2 3]} {:a #(= 3 (count %))})
 
   (match {:a {:b [{:c 1 :x 5} {:c 2 :x 6}]}}
           {:a {:b [{:c 1} {:c 2}]}}))
@@ -99,7 +111,7 @@ Understand and pick out needed parts:
 (s/def ::pos-coll (s/coll-of pos?))
 (match (match*  {:a [1 -2 3]} {:a ::pos-coll})
         [{:path [:a]
-          :expected "confirms to spec :matcho.core-test/pos-coll"
+          :expected "conforms to spec :matcho.core-test/pos-coll"
           :but "In: [1] val: -2 fails spec: :matcho.core-test/pos-coll predicate: pos?\n"}])
 ```
 
