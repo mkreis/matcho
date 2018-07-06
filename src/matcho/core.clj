@@ -25,44 +25,45 @@
     :else (when-not (= p x)
             {:expected p :but x})))
 
-(defn- match-recur [errors path example pattern]
+(defn- match-recur [errors path x pattern]
   (cond
-    (and (map? example)
+    (and (map? x)
          (map? pattern))
     (reduce (fn [errors [k v]]
               (let [path  (conj path k)
-                    ev (get example k)]
+                    ev (get x k)]
                 (match-recur errors path ev v)))
             errors pattern)
 
     (and (vector? pattern)
-         (seqable? example))
+         (seqable? x))
     (reduce (fn [errors [k v]]
               (let [path (conj path k)
-                    ev  (nth (vec example) k nil)]
+                    ev  (nth (vec x) k nil)]
                 (match-recur errors path ev v)))
             errors
             (map (fn [x i] [i x]) pattern (range)))
 
-    :else (let [err (smart-explain-data pattern example)]
+    :else (let [err (smart-explain-data pattern x)]
             (if err
               (conj errors (assoc err :path path))
               errors))))
 
 (defn match*
   "Match against each pattern"
-  [example & patterns]
-  (reduce (fn [acc pattern] (match-recur acc [] example pattern)) [] patterns))
+  [x & patterns]
+  (reduce (fn [acc pattern] (match-recur acc [] x pattern)) [] patterns))
 
 (defmacro match
   "Match against each pattern and assert with is"
-  [example & pattern]
-  `(let [example# ~example
+  [x & pattern]
+  `(let [x# ~x
          patterns# [~@pattern]
-         errors# (apply match* example# patterns#)]
+         errors# (apply match* x# patterns#)]
      (if-not (empty? errors#)
-       (is false (pr-str errors# example# patterns#))
+       (is false (pr-str errors# x# patterns#))
        (is true))))
+
 
 (defmacro to-spec
   [pattern]
@@ -94,17 +95,17 @@
 
 (defmacro matcho*
   "Match against one pattern"
-  [example pattern]
+  [x pattern]
   `(let [sp# (to-spec ~pattern)]
-     (::s/problems (s/explain-data sp# ~example))))
+     (::s/problems (s/explain-data sp# ~x))))
 
 (defmacro matcho
   "Match against one pattern and assert with is"
-  [example pattern]
+  [x pattern]
   `(let [sp# (to-spec ~pattern)
-         res# (s/valid? sp#  ~example)
-         es# (s/explain-str sp# ~example)]
-     (is res# (str (pr-str ~example) "\n" es#))))
+         res# (s/valid? sp#  ~x)
+         es# (s/explain-str sp# ~x)]
+     (is res# (str (pr-str ~x) "\n" es#))))
 
 (comment
 
