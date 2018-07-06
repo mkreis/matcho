@@ -107,9 +107,36 @@
          es# (s/explain-str sp# ~x)]
      (is res# (str (pr-str ~x) "\n" es#))))
 
+(defn valid? [pattern x]
+  (if (empty? (match* x pattern))
+    true
+    false))
+
+(defn explain-data
+  "Returns list of errors or nil"
+  [pattern x]
+  (let [errors (match* x pattern)]
+    (when (not-empty errors) errors)))
+
+(defmacro assert [pattern x]
+  `(match ~x ~pattern))
+
+
 (comment
 
-  (match* [1 3] [1 2])
+  (def person
+    {:age      42
+     :name     "Health Samurai"
+     :email    "samurai@hs.io"
+     :favorite {:numbers [1 3 17]}})
+
+  (def person-pattern
+    {:age      #(even? %)
+     :name     #"Health.*"
+     :favorite {:numbers [1 3 17]}})
+
+  (valid? person-pattern person)
+  (valid? [1 3] [1 2])
 
   (smart-explain-data pos? -1)
 
