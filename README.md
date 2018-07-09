@@ -56,6 +56,8 @@ Understand and pick out needed parts:
   (:require [clojure.test :refer :all]
             [matcho.core :as :m]))
   
+(s/def ::pos-coll (s/coll-of pos?))
+
 (deftest readme-test
   (is (m/valid? pos? 1))
   (m/assert 1 1)
