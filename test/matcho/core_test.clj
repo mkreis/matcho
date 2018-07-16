@@ -6,7 +6,60 @@
 (defn count-4? [xs]
   (= 2 (count xs)))
 
+(defn patch-article [patch]
+  {:status 200
+   :body   (assoc {:article (merge patch
+                                   {:text "nice article text"})}
+                  :article-id 1
+                  :meta {:tags ["nature" "bears"]})})
+
+(def patch {:title       "Article about bears"
+            :description "Very good article"})
+(def resp  (patch-article patch))
+
+(s/def ::str-coll (s/coll-of string?))
+
+(deftest general-patch-test
+  (let [body (:body resp)]
+    (is (< (:status resp) 300))
+    (is (= (:title patch) (get-in body [:article :title])))
+    (is (= (:description patch) (get-in body [:article :description])))
+    (is (s/valid? ::str-coll (get-in body [:meta :tags])))))
+
+(deftest matcho-patch-test
+  (def pattern
+    {:status #(< % 300)
+     :body   {:article patch
+              :meta    {:tags ::str-coll}}})
+  (m/assert pattern resp))
+
 (s/def ::pos-coll (s/coll-of pos?))
+
+(m/valid? [int? string?] [1 "test"])
+;; => true
+
+(deftest int-str-pair-test
+  (m/assert [int? string?] [1 "test"]))
+
+(m/explain-data [int? int? string?] [1 "test"])
+;; => [{:expected "#function[clojure.core/int?]", :but "test", :path [1]} {:expected "#function[clojure.core/string?--5132]", :but nil, :path [2]}]
+
+;; (deftest int-str-pair-fail-test
+;;   (m/assert [int? int? string?] [1 "test"]))
+
+;; [{:expected "#function[clojure.core/int?]", :but "test", :path [1]} {:expected "#function[clojure.core/string?--5132]", :but nil, :path [2]}] [1 "test"] [[#function[clojure.core/int?] #function[clojure.core/int?] #function[clojure.core/string?--5132]]]
+
+(m/valid? {:status 200} {:status 200 :body "ok"})
+;; => true
+
+(m/valid? {:status 200 :body string?} {:status 200})
+;; => false
+
+(def sample-resp
+  {:status 200
+   :body {:total 10
+          :elems ["some" "string" "elements"]}})
+
 
 (deftest readme-test
   (is (m/valid? pos? 1))
@@ -136,3 +189,16 @@
   (matcho (matcho* {:a -2 :b {:c {:d 5}}}
                   {:a neg? :b {:c {:d even?}}})
          [{:path [:b :c :d]}]))
+
+
+(def response {:status 200
+               :body   "ok"})
+
+(deftest with-spec-test
+  (s/def ::status #(= 200 %))
+  (s/def ::body #(not-empty %))
+  (s/def ::response (s/keys :req-un [::status ::body]))
+  (is (s/valid? ::response response)))
+
+(deftest without-spec-test
+  (m/assert {:status 200 :body not-empty} response))
