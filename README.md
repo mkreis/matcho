@@ -71,7 +71,7 @@ Understand and pick out needed parts:
 
 ```
 
-More advanced examples can be found [here](./test/core_test.clj).
+More advanced examples can be found [here](./test/matcho/core_test.clj).
 
 ## License
 
