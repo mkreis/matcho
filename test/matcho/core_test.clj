@@ -1,7 +1,8 @@
 (ns matcho.core-test
   (:require [clojure.test :refer :all]
             [clojure.spec.alpha :as s]
-            [matcho.core :refer :all :as m]))
+            [matcho.core :refer :all :as m]
+            [matcho.asserts :refer :all :as ma]))
 
 (defn count-4? [xs]
   (= 2 (count xs)))
@@ -31,7 +32,7 @@
     {:status #(< % 300)
      :body   {:article patch
               :meta    {:tags ::str-coll}}})
-  (m/assert pattern resp))
+  (ma/assert pattern resp))
 
 (s/def ::pos-coll (s/coll-of pos?))
 
@@ -39,13 +40,13 @@
 ;; => true
 
 (deftest int-str-pair-test
-  (m/assert [int? string?] [1 "test"]))
+  (ma/assert [int? string?] [1 "test"]))
 
 (m/explain-data [int? int? string?] [1 "test"])
 ;; => [{:expected "#function[clojure.core/int?]", :but "test", :path [1]} {:expected "#function[clojure.core/string?--5132]", :but nil, :path [2]}]
 
 ;; (deftest int-str-pair-fail-test
-;;   (m/assert [int? int? string?] [1 "test"]))
+;;   (ma/assert [int? int? string?] [1 "test"]))
 
 ;; [{:expected "#function[clojure.core/int?]", :but "test", :path [1]} {:expected "#function[clojure.core/string?--5132]", :but nil, :path [2]}] [1 "test"] [[#function[clojure.core/int?] #function[clojure.core/int?] #function[clojure.core/string?--5132]]]
 
@@ -63,20 +64,20 @@
 
 (deftest readme-test
   (is (m/valid? pos? 1))
-  (m/assert 1 1)
-  (m/assert {:status #(< % 300)
+  (ma/assert 1 1)
+  (ma/assert {:status #(< % 300)
              :body   #(not (empty? %))}
             {:status 200
              :body   "hello"})
-  (m/assert ::pos-coll [1 2 3])
-  (m/assert [{:expected #"conforms.*pos-coll"}]
+  (ma/assert ::pos-coll [1 2 3])
+  (ma/assert [{:expected #"conforms.*pos-coll"}]
             (m/explain-data ::pos-coll [1 -1 2])))
 
 (deftest spec-like-interface-test
   (is (m/valid? [1 2] [1 2 3]))
   (is (m/explain-data #(= 3 (count %)) [1 2]))
   (is (nil? (m/explain-data [1 2] [1 2 3])))
-  (m/assert [1 2] [1 2 3]))
+  (ma/assert [1 2] [1 2 3]))
 
 (deftest matcho-test
   (testing "Matches"
@@ -201,4 +202,4 @@
   (is (s/valid? ::response response)))
 
 (deftest without-spec-test
-  (m/assert {:status 200 :body not-empty} response))
+  (ma/assert {:status 200 :body not-empty} response))
