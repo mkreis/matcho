@@ -59,8 +59,10 @@
     (symbol? pattern) pattern
     (instance? clojure.lang.Cons pattern) pattern
     (list? pattern) pattern
-    (instance? clojure.spec.alpha.Specize pattern)  (throw (Exception. "ups")) ;;pattern
-    (fn? pattern) pattern
+    ;; (instance? clojure.spec.alpha.Specize pattern)
+    ;; (throw (Exception. "ups")) ;;pattern
+    (fn? pattern)
+    pattern
     (map? pattern)
     (let [nns (name (gensym "n"))
           nks (mapv #(keyword nns (name %)) (keys pattern))
