@@ -1,6 +1,7 @@
 (ns matcho.core
  (:require
-  [clojure.spec.alpha :as s]))
+   [clojure.spec.alpha :as s]
+   [clojure.test :refer :all]))
 
 (defn smart-explain-data [p x]
   (cond
@@ -53,6 +54,17 @@
   [x & patterns]
   (reduce (fn [acc pattern] (match-recur acc [] x pattern)) [] patterns))
 
+(defmacro match
+  "Match against each pattern and assert with is"
+  [x & pattern]
+  `(let [x# ~x
+         patterns# [~@pattern]
+         errors# (apply match* x# patterns#)]
+     (if-not (empty? errors#)
+       (is false (pr-str errors# x# patterns#))
+       (is true))))
+
+
 (defmacro to-spec
   [pattern]
   (cond
@@ -89,6 +101,14 @@
   `(let [sp# (to-spec ~pattern)]
      (::s/problems (s/explain-data sp# ~x))))
 
+(defmacro matcho
+  "Match against one pattern and assert with is"
+  [x pattern]
+  `(let [sp# (to-spec ~pattern)
+         res# (s/valid? sp#  ~x)
+         es# (s/explain-str sp# ~x)]
+     (is res# (str (pr-str ~x) "\n" es#))))
+
 (defn valid? [pattern x]
   (if (empty? (match* x pattern))
     true
@@ -99,6 +119,10 @@
   [pattern x]
   (let [errors (match* x pattern)]
     (when (not-empty errors) errors)))
+
+(defmacro assert [pattern x]
+  `(match ~x ~pattern))
+
 
 (comment
 
@@ -116,7 +140,7 @@
   (valid? person-pattern person)
   (valid? [1 3] [1 2])
 
-  (smart-explain-data pos? 1)
+  (smart-explain-data pos? -1)
 
   (matcho* -1 pos?)
 
@@ -128,13 +152,3 @@
   (to-spec (s/coll-of keyword?))
 
   )
-
-;; (s/def ::status #(= 200 %))
-;; (s/def ::body #(not-empty %))
-
-;; (s/def ::response (s/keys :un-key [::status ::body]))
-
-;; (is (s/valid? ::response response))
-
-
-;; (m/assert {:status 200 :body not-empty} response)
