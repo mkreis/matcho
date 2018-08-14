@@ -110,9 +110,7 @@
      (is res# (str (pr-str ~x) "\n" es#))))
 
 (defn valid? [pattern x]
-  (if (empty? (match* x pattern))
-    true
-    false))
+  (empty? (match* x pattern)))
 
 (defn explain-data
   "Returns list of errors or nil"
