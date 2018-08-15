@@ -37,17 +37,56 @@
 
     (and (vector? pattern)
          (seqable? x))
+    (let [strict? (= :matcho/strict (first pattern))
+          pattern (if strict? (rest pattern) pattern)
+          errors (if (and strict? (not (= (count pattern) (count x))))
+                   (conj errors {:expected "Same number of elements in sequences"
+                                 :but      (str "Got " (count pattern)
+                                                " in pattern and " (count x) " in x")
+                                 :path     path})
+                   errors)]
+      (reduce (fn [errors [k v]]
+                (let [path (conj path k)
+                      ev   (nth (vec x) k nil)]
+                  (match-recur errors path ev v)))
+              errors
+              (map (fn [x i] [i x]) pattern (range))))
+
+    :else (let [err (smart-explain-data pattern x)]
+            (if err
+              (conj errors (assoc err :path path))
+              errors))))
+
+(defn- match-recur-strict [errors path x pattern]
+  (cond
+    (and (map? x)
+         (map? pattern))
     (reduce (fn [errors [k v]]
               (let [path (conj path k)
-                    ev  (nth (vec x) k nil)]
-                (match-recur errors path ev v)))
-            errors
+                    ev   (get x k)]
+                (match-recur-strict errors path ev v)))
+            errors pattern)
+
+    (and (vector? pattern)
+         (seqable? x))
+    (reduce (fn [errors [k v]]
+              (let [path (conj path k)
+                    ev   (nth (vec x) k nil)]
+                (match-recur-strict errors path ev v)))
+            (if (= (count pattern) (count x))
+              errors
+              (conj errors {:expected "Same number of elements in sequences"
+                            :but      (str "Got " (count pattern)
+                                           " in pattern and " (count x) " in x")
+                            :path     path}))
             (map (fn [x i] [i x]) pattern (range)))
 
     :else (let [err (smart-explain-data pattern x)]
             (if err
               (conj errors (assoc err :path path))
               errors))))
+
+
 
 (defn match*
   "Match against each pattern"
@@ -62,6 +101,16 @@
          errors# (apply match* x# patterns#)]
      (if-not (empty? errors#)
        (is false (pr-str errors# x# patterns#))
+       (is true))))
+
+(defmacro not-match
+  "Match against each pattern and dessert with is"
+  [x & pattern]
+  `(let [x#        ~x
+         patterns# [~@pattern]
+         errors#   (apply match* x# patterns#)]
+     (if (empty? errors#)
+       (is false "expected some errors")
        (is true))))
 
 
@@ -121,6 +170,8 @@
 (defmacro assert [pattern x]
   `(match ~x ~pattern))
 
+(defmacro dessert [pattern x]
+  `(not-match ~x ~pattern))
 
 (comment
 

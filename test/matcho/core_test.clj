@@ -202,3 +202,18 @@
 
 (deftest without-spec-test
   (m/assert {:status 200 :body not-empty} response))
+
+(deftest strict-match-test
+
+  (testing "vector strict mode"
+    (m/dessert
+     {:a [:matcho/strict 1 2 4]}
+     {:a [1 2 4 5]})
+    (m/assert
+     {:a [:matcho/strict 1 2 4]}
+     {:a [1 2 4]}))
+
+  (testing "map strict mode"
+
+    )
+  )
