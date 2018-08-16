@@ -206,14 +206,40 @@
 (deftest strict-match-test
 
   (testing "vector strict mode"
+
     (m/dessert
      {:a ^:matcho/strict [1 2 4]}
      {:a [1 2 4 5]})
+
     (m/assert
      {:a ^:matcho/strict [1 2 4]}
      {:a [1 2 4]}))
 
   (testing "map strict mode"
 
-    )
-  )
+    (m/dessert
+     ^:matcho/strict
+     {:a :b}
+     {:a :b :c :d})
+
+    (m/assert
+     ^:matcho/strict
+     {:a :b}
+     {:a :b}))
+
+  (testing "non-inheritance of strict mode"
+
+    (m/assert
+     ^:matcho/strict
+     {:a [1 2]}
+     {:a [1 2 3]})
+
+    (m/dessert
+     ^:matcho/strict
+     {:a ^:matcho/strict [1 2]}
+     {:a [1 2 3]})
+
+    (m/assert
+     ^:matcho/strict
+     {:a ^:matcho/strict [1 2]}
+     {:a [1 2]})))

@@ -29,21 +29,29 @@
   (cond
     (and (map? x)
          (map? pattern))
-    (reduce (fn [errors [k v]]
-              (let [path  (conj path k)
-                    ev (get x k)]
-                (match-recur errors path ev v)))
-            errors pattern)
+    (let [strict? (:matcho/strict (meta pattern))
+          errors  (if (and strict? (not (= (set (keys pattern))
+                                           (set (keys x)))))
+                    (conj errors {:expected "Same keys in pattern and x"
+                                  :but      (str "Got " (keys pattern)
+                                                 " in pattern and " (keys x) " in x")
+                                  :path     path})
+                    errors)]
+      (reduce (fn [errors [k v]]
+                (let [path (conj path k)
+                      ev   (get x k)]
+                  (match-recur errors path ev v)))
+              errors pattern))
 
     (and (vector? pattern)
          (seqable? x))
     (let [strict? (:matcho/strict (meta pattern))
-          errors (if (and strict? (not (= (count pattern) (count x))))
-                   (conj errors {:expected "Same number of elements in sequences"
-                                 :but      (str "Got " (count pattern)
-                                                " in pattern and " (count x) " in x")
-                                 :path     path})
-                   errors)]
+          errors  (if (and strict? (not (= (count pattern) (count x))))
+                    (conj errors {:expected "Same number of elements in sequences"
+                                  :but      (str "Got " (count pattern)
+                                                 " in pattern and " (count x) " in x")
+                                  :path     path})
+                    errors)]
       (reduce (fn [errors [k v]]
                 (let [path (conj path k)
                       ev   (nth (vec x) k nil)]
