@@ -37,8 +37,7 @@
 
     (and (vector? pattern)
          (seqable? x))
-    (let [strict? (= :matcho/strict (first pattern))
-          pattern (if strict? (rest pattern) pattern)
+    (let [strict? (:matcho/strict (meta pattern))
           errors (if (and strict? (not (= (count pattern) (count x))))
                    (conj errors {:expected "Same number of elements in sequences"
                                  :but      (str "Got " (count pattern)

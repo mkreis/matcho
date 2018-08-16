@@ -207,10 +207,10 @@
 
   (testing "vector strict mode"
     (m/dessert
-     {:a [:matcho/strict 1 2 4]}
+     {:a ^:matcho/strict [1 2 4]}
      {:a [1 2 4 5]})
     (m/assert
-     {:a [:matcho/strict 1 2 4]}
+     {:a ^:matcho/strict [1 2 4]}
      {:a [1 2 4]}))
 
   (testing "map strict mode"
