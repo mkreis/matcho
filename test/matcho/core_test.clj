@@ -49,6 +49,42 @@
 
 ;; [{:expected "#function[clojure.core/int?]", :but "test", :path [1]} {:expected "#function[clojure.core/string?--5132]", :but nil, :path [2]}] [1 "test"] [[#function[clojure.core/int?] #function[clojure.core/int?] #function[clojure.core/string?--5132]]]
 
+(deftest dessert-test
+  (m/dessert [int? int?] [1 "test"]))
+;; is ok!
+
+(deftest user-sensitive-data-test
+
+  (testing "open-world exposes sensitive data"
+    (m/assert
+     {:body
+      {:username string?
+       :age      int?}}
+     {:body
+      {:username "bob"
+       :age      42
+       :password "my-password"}}))
+
+  (testing "closed-world will catch accidentially exposed password"
+    (m/dessert
+     {:body
+      ^:matcho/strict
+      {:username string?
+       :age      int?}}
+     {:body
+      {:username "bob"
+       :age      42
+       :password "my-password"}})))
+
+(deftest vector-strict-match
+  (def vector-123 [1 2 3])
+  (m/assert [1 2] [1 2 3])
+  (m/dessert ^:matcho/strict [1 2] [1 2 3])
+  (m/assert ^:matcho/strict [1 2] [1 2])
+  ;; ^:matcho/strict works only for current element of the pattern and
+  ;; not inherited by nested nodes
+  (m/assert ^:matcho/strict {:a [1 2]} {:a [1 2 3]}))
+
 (m/valid? {:status 200} {:status 200 :body "ok"})
 ;; => true
 

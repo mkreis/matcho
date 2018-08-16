@@ -82,12 +82,13 @@ Understand and pick out needed parts:
 
 ### Spec-like interface
 
-There are three main vars in core ns: `valid?`, `explain-data` and `assert`.
-First one is a function, which takes pattern and value returns true if value
-conforms the pattern and false in other case. The second one is a function,
-which returns a vector of errors or nil. The last one is a macro, it works the
-same way as `valid?`, but additionally asserts with `is` and provide a vector of
-errors using `expalin-data`.
+There are few main vars in core ns: `valid?`, `explain-data`, `assert` and
+`dessert`. First one is a function, which takes pattern and value returns true
+if value conforms the pattern and false in other case. The second one is a
+function, which returns a vector of errors or nil. The third one is a macro, it
+works the same way as `valid?`, but additionally asserts with `is` and provide a
+vector of errors using `expalin-data`. `dessert` is opposit to `assert`, test
+fails only if value is `valid?`.
 
 ```clj
 (m/valid? [int? string?] [1 "test"])
@@ -103,6 +104,11 @@ errors using `expalin-data`.
   (m/assert [int? int? string?] [1 "test"]))
 
 ;; [{:expected "#function[clojure.core/int?]", :but "test", :path [1]} {:expected "#function[clojure.core/string?--5132]", :but nil, :path [2]}] [1 "test"] [[#function[clojure.core/int?] #function[clojure.core/int?] #function[clojure.core/string?--5132]]]
+
+(deftest dessert-test
+  (m/dessert [int? int?] [1 "test"]))
+;; is ok!
+
 ```
 
 ### How it works?
@@ -115,7 +121,8 @@ process will continue.
 The pattern can be much smaller (has less keys, elements in vector and so on)
 than the original value and it is a common case. The [open-world
 assumption](https://en.wikipedia.org/wiki/Open-world_assumption) implemented in
-`matcho` allows developer to check only "interesting" parts.
+`matcho` allows developer to check only "interesting" parts, but if it needed
+some parts of patterns can be marked as closed-world.
 
 ```clj
 (m/valid? {:status 200} {:status 200 :body "ok"})
@@ -124,6 +131,51 @@ assumption](https://en.wikipedia.org/wiki/Open-world_assumption) implemented in
 (m/valid? {:status 200 :body string?} {:status 200})
 ;; => false
 ```
+
+### Strict match
+
+In some cases it necessary to check that there are no additional elements in a
+vector or no additional keys in a map. To make sure that no sensetive data
+exposed for example. This can be done using metadata inside pattern. Needed node
+should be prepended with `^{:matcho/strict true}` or `^:matcho/strict`
+(alternative shorter form).
+
+```clj
+(deftest user-sensitive-data-test
+
+  (testing "open-world exposes sensitive data"
+    (m/assert
+     {:body
+      {:username string?
+       :age      int?}}
+     {:body
+      {:username "bob"
+       :age      42
+       :password "my-password"}}))
+
+  (testing "closed-world will catch accidentially exposed password"
+    (m/dessert
+     {:body
+      ^:matcho/strict
+      {:username string?
+       :age      int?}}
+     {:body
+      {:username "bob"
+       :age      42
+       :password "my-password"}})))
+
+(deftest vector-strict-match
+  (def vector-123 [1 2 3])
+  (m/assert [1 2] [1 2 3])
+  (m/dessert ^:matcho/strict [1 2] [1 2 3])
+  (m/assert ^:matcho/strict [1 2] [1 2])
+  ;; ^:matcho/strict works only for current element of the pattern and
+  ;; not inherited by nested nodes
+  (m/assert ^:matcho/strict {:a [1 2]} {:a [1 2 3]}))
+```
+
+In examples above the presence of unnecessary will be catched. Strictness not
+inherited by child nodes of data structure.
 
 ### Special leaf nodes
 
