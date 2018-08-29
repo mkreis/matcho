@@ -33,8 +33,8 @@
           errors  (if (and strict? (not (= (set (keys pattern))
                                            (set (keys x)))))
                     (conj errors {:expected "Same keys in pattern and x"
-                                  :but      (str "Got " (keys pattern)
-                                                 " in pattern and " (keys x) " in x")
+                                  :but      (str "Got " (vec (keys pattern))
+                                                 " in pattern and " (vec (keys x)) " in x")
                                   :path     path})
                     errors)]
       (reduce (fn [errors [k v]]
