@@ -1,5 +1,6 @@
 (ns matcho.core
- (:require
+  (:refer-clojure :exclude [assert])
+  (:require
    [clojure.spec.alpha :as s]
    [clojure.test :refer :all]))
 

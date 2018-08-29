@@ -1,7 +1,7 @@
 (ns matcho.core-test
   (:require [clojure.test :refer :all]
             [clojure.spec.alpha :as s]
-            [matcho.core :refer :all :as m]))
+            [matcho.core :refer [match match* matcho matcho* to-spec] :as m]))
 
 (defn count-4? [xs]
   (= 2 (count xs)))
