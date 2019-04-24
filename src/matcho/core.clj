@@ -44,8 +44,8 @@
                   (match-recur errors path ev v)))
               errors pattern))
 
-    (and (vector? pattern)
-         (seqable? x))
+    (and (sequential? pattern)
+         (sequential? x))
     (let [strict? (:matcho/strict (meta pattern))
           errors  (if (and strict? (not (= (count pattern) (count x))))
                     (conj errors {:expected "Same number of elements in sequences"
@@ -75,8 +75,8 @@
                 (match-recur-strict errors path ev v)))
             errors pattern)
 
-    (and (vector? pattern)
-         (seqable? x))
+    (and (sequential? pattern)
+         (sequential? x))
     (reduce (fn [errors [k v]]
               (let [path (conj path k)
                     ev   (nth (vec x) k nil)]
@@ -138,7 +138,7 @@
           ks  (map (fn [[k v]] (list 's/def (keyword nns (name k)) (list 'to-spec v))) pattern)]
       `(do ~@ks (s/keys :req-un ~nks)))
 
-    (vector? pattern)
+    (sequential? pattern)
     (let [nns (name (gensym "n"))
           cats (loop [i 0
                       [p & ps] pattern
