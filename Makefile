@@ -6,3 +6,6 @@ test:
 deploy: test
 	clj -Spom
 	mvn deploy
+
+push:
+	mvn deploy
