@@ -3,6 +3,14 @@
             [clojure.spec.alpha :as s]
             [matcho.core :refer [match match* matcho matcho* to-spec] :as m]))
 
+#_(deftest fail
+  (match
+   {:status 500
+    :body "some logn string with exception"}
+   {:status 200
+    :body {:entry [{:resourceType "Patient"
+                    :id #(integer? %)}]}}))
+
 (defn count-4? [xs]
   (= 2 (count xs)))
 

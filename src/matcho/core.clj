@@ -120,7 +120,8 @@
          errors# (apply match* x# patterns#)]
      (if-not (empty? errors#)
        (let [builded# (build-expected-actual errors#)]
-         (do-report {:message (str "\n"(with-out-str (clojure.pprint/pprint (ddiff/diff (:actual builded#) (:expected builded#)))))
+         (do-report {:message (str "\n"(with-out-str (clojure.pprint/pprint (ddiff/diff (:expected builded#)
+                                                                                        (:actual builded#)))))
                      :type :fail
                      :actual  (:actual builded#)
                      :expected (:expected builded#)}))
