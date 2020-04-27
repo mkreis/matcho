@@ -1,6 +1,8 @@
 (ns matcho.core
   (:refer-clojure :exclude [assert])
   (:require
+   [lambdaisland.deep-diff2 :as ddiff]
+   [clojure.pprint]
    [clojure.spec.alpha :as s]
    [clojure.test :refer :all]))
 
@@ -101,6 +103,15 @@
   [x & patterns]
   (reduce (fn [acc pattern] (match-recur acc [] x pattern)) [] patterns))
 
+(defn build-expected-actual [errors]
+  (reduce
+   (fn [acc v]
+     (-> acc
+         (update :actual assoc-in (:path v) (:but v))
+         (update :expected assoc-in (:path v) (:expected v))))
+   {:expected {} :actual {}}
+   errors))
+
 (defmacro match
   "Match against each pattern and assert with is"
   [x & pattern]
@@ -108,7 +119,11 @@
          patterns# [~@pattern]
          errors# (apply match* x# patterns#)]
      (if-not (empty? errors#)
-       (is false (pr-str errors# x# patterns#))
+       (let [builded# (build-expected-actual errors#)]
+         (do-report {:message (str "\n"(with-out-str (clojure.pprint/pprint (ddiff/diff (:actual builded#) (:expected builded#)))))
+                     :type :fail
+                     :actual  (:actual builded#)
+                     :expected (:expected builded#)}))
        (is true))))
 
 (defmacro not-match
