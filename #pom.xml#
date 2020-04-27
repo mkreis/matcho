@@ -8,7 +8,7 @@
   <build>
     <sourceDirectory>src</sourceDirectory>
     <resources>
-      <resource>
+	<resource>
         <directory>src</directory>
       </resource>
     </resources>
