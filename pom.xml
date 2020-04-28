@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>healthsamurai</groupId>
   <artifactId>matcho</artifactId>
-  <version>0.3.6-SNAPSHOT</version>
+  <version>0.3.6</version>
   <name>matcho</name>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -42,11 +42,6 @@
       <groupId>org.clojure</groupId>
       <artifactId>clojure</artifactId>
       <version>1.9.0</version>
-    </dependency>
-    <dependency>
-      <groupId>lambdaisland</groupId>
-      <artifactId>deep-diff2</artifactId>
-      <version>2.0.0-93</version>
     </dependency>
     <dependency>
       <groupId>org.clojure</groupId>

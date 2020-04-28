@@ -1,7 +1,6 @@
 (ns matcho.core
   (:refer-clojure :exclude [assert])
   (:require
-   ;;[lambdaisland.deep-diff2 :as ddiff]
    [clojure.pprint]
    [clojure.spec.alpha :as s]
    [clojure.test :refer :all]))
@@ -112,6 +111,12 @@
    {:expected {} :actual {}}
    errors))
 
+(defn build-diff [errors]
+  (reduce
+   (fn [acc {:keys [but expected path]}]
+     (assoc-in acc path {'- expected '+ but}))
+   {} errors))
+
 (defmacro match
   "Match against each pattern and assert with is"
   [x & pattern]
@@ -120,8 +125,7 @@
          errors# (apply match* x# patterns#)]
      (if-not (empty? errors#)
        (let [builded# (build-expected-actual errors#)]
-         (do-report {#_:message #_(str "\n"(with-out-str (clojure.pprint/pprint (ddiff/diff (:expected builded#)
-                                                                                        (:actual builded#)))))
+         (do-report {:message (str "Matcho pattern mismatch:\n\n"(with-out-str (clojure.pprint/pprint (build-diff errors#))))
                      :type :fail
                      :actual  (:actual builded#)
                      :expected (:expected builded#)}))
