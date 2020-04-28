@@ -1,7 +1,7 @@
 (ns matcho.core
   (:refer-clojure :exclude [assert])
   (:require
-   [lambdaisland.deep-diff2 :as ddiff]
+   ;;[lambdaisland.deep-diff2 :as ddiff]
    [clojure.pprint]
    [clojure.spec.alpha :as s]
    [clojure.test :refer :all]))
@@ -120,7 +120,7 @@
          errors# (apply match* x# patterns#)]
      (if-not (empty? errors#)
        (let [builded# (build-expected-actual errors#)]
-         (do-report {:message (str "\n"(with-out-str (clojure.pprint/pprint (ddiff/diff (:expected builded#)
+         (do-report {#_:message #_(str "\n"(with-out-str (clojure.pprint/pprint (ddiff/diff (:expected builded#)
                                                                                         (:actual builded#)))))
                      :type :fail
                      :actual  (:actual builded#)
