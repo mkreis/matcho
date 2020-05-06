@@ -120,14 +120,14 @@
 (defmacro match
   "Match against each pattern and assert with is"
   [x & pattern]
-  `(let [x# ~x
+  `(let [x#        ~x
          patterns# [~@pattern]
-         errors# (apply match* x# patterns#)]
+         errors#   (apply match* x# patterns#)]
      (if-not (empty? errors#)
        (let [builded# (build-expected-actual errors#)]
-         (do-report {:message (str "Matcho pattern mismatch:\n\n"(with-out-str (clojure.pprint/pprint (build-diff errors#))))
-                     :type :fail
-                     :actual  (:actual builded#)
+         (do-report {:message  (str "Matcho pattern mismatch:\n\n"(with-out-str (clojure.pprint/pprint (build-diff errors#))))
+                     :type     :fail
+                     :actual   x#
                      :expected (:expected builded#)}))
        (is true))))
 
