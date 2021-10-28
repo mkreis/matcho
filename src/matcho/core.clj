@@ -127,8 +127,8 @@
        (let [builded# (build-expected-actual errors#)]
          (do-report {:message  (str "Matcho pattern mismatch:\n\n"(with-out-str (clojure.pprint/pprint (build-diff errors#))))
                      :type     :fail
-                     :actual   x#
-                     :expected (:expected builded#)}))
+                     :actual   (with-out-str (clojure.pprint/pprint x#))
+                     :expected (with-out-str (clojure.pprint/pprint (:expected builded#)))}))
        (is true))))
 
 (defmacro not-match
