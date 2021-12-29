@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>healthsamurai</groupId>
   <artifactId>matcho</artifactId>
-  <version>0.3.8</version>
+  <version>0.3.9</version>
   <name>matcho</name>
   <build>
     <sourceDirectory>src</sourceDirectory>
