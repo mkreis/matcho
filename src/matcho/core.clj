@@ -7,7 +7,7 @@
 
 (defn smart-explain-data [p x]
   (cond
-    (instance? clojure.spec.alpha.Specize p)
+    (s/spec? p)
     (when-not (s/valid? p x)
       {:expected (str "conforms to spec: " p) :but (s/explain-data p x)})
 
