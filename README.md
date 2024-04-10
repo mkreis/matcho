@@ -2,7 +2,7 @@
 
 Simpliest pattern matching you've ever seen.
 
-[![Clojars Project](http://clojars.org/healthsamurai/matcho/latest-version.svg)](http://clojars.org/healthsamurai/matcho)
+[![Clojars Project](http://clojars.org/com.health-samurai/matcho/latest-version.svg)](http://clojars.org/com.health-samurai/matcho)
 
 ## Idea
 
